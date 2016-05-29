@@ -1,62 +1,112 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
-*.py[cod]
-*$py.class
+from time import * #on importe la fonction time
+from tkinter import *                   # On importe tKinter
+import datetime
 
-# C extensions
-*.so
 
-# Distribution / packaging
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
+def localisation():
+    
+    longitude = input("latitude") 
+    longitude= int(longitude)
+    #print("longitude = ", longitude)
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
+    latitude = input("longitude")
+    latitude= int(latitude)
+    #print("latitude = ", latitude)
+    
+    position = [longitude, latitude]
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
+    return position 
 
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*,cover
-.hypothesis/
+def decalage(position) :
+    
+    decalage3 = 24*position[1]//360
+    print("decalage =" ,decalage3,"heure")
 
-# Translations
-*.mo
-*.pot
+    return decalage3
+    
 
-# Django stuff:
-*.log
+def recup_temps():#on cree une fonction pour trouver l'horloge interne de l'ordinateur
+    temps=localtime()#on recupere l'heure, les minute, les seconde
+    heure=temps.tm_hour#on associe "heure" a l'heure de l'ordinateur
+    minute=temps.tm_min#on associe "minute" au minute de l'ordinateur
+    seconde=temps.tm_sec#on associe "seconde" au seconde de l'ordinateur
+    tempsLocal= [heure, minute, seconde]#on cree une liste pour utiliser les trois varriables
+    return tempsLocal#on met fin a la fonction et on recupere "tempsLocal" pour l'utiliser par la suite
 
-# Sphinx documentation
-docs/_build/
 
-# PyBuilder
-target/
+def temps_utc(tempsLocal, tempsGMT) :#on cree une fonction pour trouver l'heure à greenwich 
+    diffutc=timezone/3600#on divise par 3600 pour convertir les seconde en heure
+    heureGMT=tempsLocal[0]+diffutc#on recupere l'heure dans la liste tempsLocal puis on ajoute la difference utc 
+    minuteGMT=tempsLocal[1]#on recupere les minutes dans la liste temps local
+    secondeGMT=tempsLocal[2]#on recupere les seconde dans la liste tempslocal
+    tempsGMT = [heureGMT, minuteGMT, secondeGMT]#afin de pourvoir "transporter" les heureles minute et les seconde on cree une liste
+    return tempsGMT#on met fin a la donction et on recupere"temps GMT" afin de l'utiliser par la suite
 
-#Ipython Notebook
-.ipynb_checkpoints
+def diff_horaire(tempsGMT, decalage2) :#on cree une fonction pour additionner l'heure de decalage a l'heure de Greenwich 
+    decalage_horaire = tempsGMT[0] + decalage2#on nomme une variable "decalgeèhoraire" qui et l'heure modifier,on recupere les heure dans la liste temps GMT puis on additionne le decalge 
+    horairemodifie = [decalage_horaire, tempsGMT[1], tempsGMT[2]]#on cree une liste a fin de pouvoir recuper l'heure modifier, les minute et les seconde de sont pas modifier donc on les recuper dans la liste temps GMT 
+    print ("horaire_decaler =", horairemodifie)
+    return horairemodifie#on met fin a la fonction
+    
+
+
+def update(): # Création d'une fonction qui va mettre à jour l'heure de l'horloge
+    now = strftime("%Y-%m-%d %H:%M:%S") #Formatage de l'heure locale avec la fonction strftime
+    heure.config(text=now)
+    sleep(0.6) # fonction sleep sert à les nombres au cours du temps, en indiquant tous les combien de seconde entre chaque mise à jour
+    heure.after(200,update) #mise à jour de l'heure
+    
+    return    
+
+def update2(): # Création d'une fonction qui va mettre à jour l'heure de l'horloge
+    
+    today = datetime.datetime.now() #datetime représente des dates et des heures en UTC
+    todayPlus3Hours = today + datetime.timedelta(hours=3)# ici on veut un décalage de +3heures par rapport à l'heure locale
+    print(todayPlus3Hours)
+    print(todayPlus3Hours.hour)
+
+
+    print(todayPlus3Hours.minute)
+    print(todayPlus3Hours.second)
+    now =today + datetime.timedelta(hours=3) #ici on veut un décalage de +3heures par rapport à l'heure locale actuelle d'aujourd'hui
+    heure.config(text=now)
+    sleep(0.6)
+    heure.after(200,update2)
+    
+    return
+
+
+
+#prog princ
+fen1= Tk() # création de la fenêtre principale où se situera des widgets
+fen1.title("Horloge du monde")
+time1 = ''
+tex1 = Label(fen1, text='horloge mondiale!', fg='purple') #Les labels sont des espaces prévus pour écrire du texte
+tex1.pack()
+bou1 = Button(fen1, text="afficher  décalée", fg='purple',command = update2) # widget bouton 1 , action de la fonction update2 
+heure = Label(fen1, font=('time', 20, 'bold'), bg='pink')
+heure.pack(fill=BOTH, expand=1)
+bou1.pack()
+bou2 = Button(fen1, text="Afficher l'heure locale",fg='purple', command =update) #widget bouton 2, action de la fonction update1
+heure2 = Label(fen1, font=('time', 20, 'bold'), bg='pink')
+heure2.pack(fill=BOTH, expand=1)
+bou2.pack()
+bou3 = Button(fen1,text="Quitter", command = fen1.destroy)#widget bouton 3, pour quitter "horloge du monde"
+bou3.pack()
+fen1.mainloop()
+
+# Démarrage de la boucle Tkinter qui s'interompt quand on ferme la fenêtre
+
+
+
+position = localisation()
+decalage2 = decalage(position)
+tempsLocal = recup_temps()#Dans la fonction temps local on recupere "recup_temps" afin de l'utiliser dans la fonction
+print("heure à selestat = ", tempsLocal)
+tempsGMT = [] #on cree un liste vide afin que le programe principale recupere le temps GMT
+tempsGMT = temps_utc(tempsLocal, tempsGMT)#On appelle la fonction "temps_utc" avec les parametre "temps local" et "tempsGMT" afin de pouvoir utiliser tempsLocal et tempsGMT dans la fonction tempsGMT 
+print ("heure à Greenwich" ,tempsGMT)
+diff_horaire(tempsGMT, decalage2) # On appele la foncttion "diff_horaire" avec les parametres "tempsGMT" et "decalage" a fin de pouvoir utiliser ces parametre dans la fonction
+
+
+
